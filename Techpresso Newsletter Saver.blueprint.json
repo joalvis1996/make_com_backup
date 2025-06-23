@@ -1,5 +1,5 @@
 {
-    "name": "Integration Webhooks, Google Gemini AI",
+    "name": "Techpresso Newsletter Saver",
     "flow": [
         {
             "id": 1,
@@ -12,8 +12,8 @@
             "mapper": {},
             "metadata": {
                 "designer": {
-                    "x": -427,
-                    "y": -853
+                    "x": -442,
+                    "y": -659
                 },
                 "restore": {
                     "parameters": {
@@ -90,8 +90,8 @@
             },
             "metadata": {
                 "designer": {
-                    "x": -25,
-                    "y": -863
+                    "x": -38,
+                    "y": -659
                 },
                 "restore": {
                     "expect": {
@@ -313,8 +313,8 @@
             "mapper": null,
             "metadata": {
                 "designer": {
-                    "x": 398,
-                    "y": -856
+                    "x": 356,
+                    "y": -656
                 }
             },
             "routes": [
@@ -341,7 +341,7 @@
                             },
                             "mapper": {
                                 "url": "/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent",
-                                "body": "{\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"다음 영어 뉴스들을 자연스럽고 간결한 한국어로 번역한 뒤, 각 뉴스마다 반드시 JSON 배열을 string으로 반환해줘( 반드시```json 태그 없이 반환해줘).  모든 subject 값은 {{1.title}}로 통일해줘. 형식: \\n\\n[\\n  {\\n    \\\"subject\\\": \\\"\\\",\\n    \\\"title\\\": \\\"[한국어 번역된 제목]\\\",\\n    \\\"content\\\": \\\"[한국어로 번역된 기사 본문]\\\"\\n  },\\n  ...\\n]\\n\\n원문은 이거야:{{1.summary}}\\n\"\n        }\n      ]\n    }\n  ]\n}",
+                                "body": "{\r\n  \"contents\": [\r\n    {\r\n      \"role\": \"user\",\r\n      \"parts\": [\r\n        {\r\n          \"text\": \"다음 영어 뉴스들을 자연스럽고 간결한 한국어로 번역한 뒤, 각 뉴스마다 반드시 JSON 배열을 string으로 반환해줘 (반드시 ```json 태그 없이 반환해줘). 번역된 내용에는 쌍따옴표는 존재하면 안돼. 모든 subject 값은 {{1.title}}로 통일해줘. 그리고 각 뉴스마다 핵심 키워드 3개를 'keywords' 항목으로 함께 포함시켜줘 (예: [\\\"AI\\\", \\\"애플\\\", \\\"시리\\\"]). 형식은 아래와 같아:\\n\\n[\\n  {\\n    \\\"subject\\\": \\\"\\\",\\n    \\\"title\\\": \\\"[한국어 번역된 제목]\\\",\\n    \\\"content\\\": \\\"[한국어로 번역된 기사 본문]\\\",\\n    \\\"keywords\\\": [\\\"키워드1\\\", \\\"키워드2\\\", \\\"키워드3\\\"]\\n  },\\n  ...\\n]\\n\\n원문은 이거야:\\n{{1.summary}}\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
                                 "method": "POST",
                                 "headers": [
                                     {
@@ -352,8 +352,8 @@
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 406,
-                                    "y": -1331
+                                    "x": 364,
+                                    "y": -1106
                                 },
                                 "restore": {
                                     "expect": {
@@ -465,8 +465,8 @@
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 706,
-                                    "y": -1337
+                                    "x": 701,
+                                    "y": -1105
                                 },
                                 "restore": {
                                     "parameters": {
@@ -492,18 +492,18 @@
                                 ],
                                 "interface": [
                                     {
-                                        "name": "test response",
-                                        "label": null,
                                         "help": "",
-                                        "type": "array",
+                                        "name": "test response",
                                         "spec": {
+                                            "name": "value",
                                             "type": "text",
+                                            "label": "Value",
                                             "default": "example",
                                             "required": false,
-                                            "multiline": false,
-                                            "name": "value",
-                                            "label": "Value"
+                                            "multiline": false
                                         },
+                                        "type": "array",
+                                        "label": null,
                                         "required": false
                                     }
                                 ]
@@ -517,14 +517,15 @@
                                 "feeder": 24
                             },
                             "mapper": {
-                                "subject": "{{24.subject}}",
                                 "title": "{{24.title}}",
-                                "content": "{{24.content}}"
+                                "content": "{{24.content}}",
+                                "subject": "{{24.subject}}",
+                                "keywords": "{{24.keywords}}"
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 1004,
-                                    "y": -1339
+                                    "x": 1020,
+                                    "y": -1107
                                 },
                                 "restore": {
                                     "extra": {
@@ -548,8 +549,8 @@
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 1297,
-                                    "y": -1347
+                                    "x": 1318,
+                                    "y": -1112
                                 },
                                 "restore": {
                                     "expect": {
@@ -563,11 +564,11 @@
                                 },
                                 "expect": [
                                     {
-                                        "name": "array",
-                                        "type": "array",
-                                        "label": "Array",
                                         "mode": "edit",
-                                        "spec": []
+                                        "name": "array",
+                                        "spec": [],
+                                        "type": "array",
+                                        "label": "Array"
                                     }
                                 ]
                             }
@@ -581,8 +582,11 @@
                                 "useNewZLibDeCompress": true
                             },
                             "mapper": {
+                                "ca": "",
+                                "qs": [],
                                 "url": "https://rrhfiepdubhqumxorfjn.supabase.co/rest/v1/newsletter",
-                                "serializeUrl": false,
+                                "data": "{\n  \"subject\": \"{{28.subject}}\",\n  \"title\": \"{{28.title}}\",\n  \"content\": \"{{28.content}}\",\n  \"created_at\": {{timestamp}}\n}",
+                                "gzip": true,
                                 "method": "post",
                                 "headers": [
                                     {
@@ -602,30 +606,30 @@
                                         "value": "return=minimal"
                                     }
                                 ],
-                                "qs": [],
-                                "bodyType": "raw",
-                                "parseResponse": false,
-                                "authUser": "",
-                                "authPass": "",
                                 "timeout": "",
+                                "useMtls": false,
+                                "authPass": "",
+                                "authUser": "",
+                                "bodyType": "raw",
+                                "contentType": "application/json",
+                                "serializeUrl": false,
                                 "shareCookies": false,
-                                "ca": "",
-                                "rejectUnauthorized": true,
+                                "parseResponse": false,
                                 "followRedirect": true,
                                 "useQuerystring": false,
-                                "gzip": true,
-                                "useMtls": false,
-                                "contentType": "application/json",
-                                "data": "[\n{\n  \"subject\": \"{{28.subject}}\",\n  \"title\": \"{{28.title}}\",\n  \"content\": \"{{28.content}}\"\n}\n]",
-                                "followAllRedirects": false
+                                "followAllRedirects": false,
+                                "rejectUnauthorized": true
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 1558,
-                                    "y": -1348
+                                    "x": 1609,
+                                    "y": -1118
                                 },
                                 "restore": {
                                     "expect": {
+                                        "qs": {
+                                            "mode": "chose"
+                                        },
                                         "method": {
                                             "mode": "chose",
                                             "label": "POST"
@@ -638,9 +642,6 @@
                                                 null,
                                                 null
                                             ]
-                                        },
-                                        "qs": {
-                                            "mode": "chose"
                                         },
                                         "bodyType": {
                                             "label": "Raw"
@@ -694,39 +695,39 @@
                                     },
                                     {
                                         "name": "headers",
-                                        "type": "array",
-                                        "label": "Headers",
                                         "spec": [
                                             {
                                                 "name": "name",
-                                                "label": "Name",
                                                 "type": "text",
+                                                "label": "Name",
                                                 "required": true
                                             },
                                             {
                                                 "name": "value",
-                                                "label": "Value",
-                                                "type": "text"
+                                                "type": "text",
+                                                "label": "Value"
                                             }
-                                        ]
+                                        ],
+                                        "type": "array",
+                                        "label": "Headers"
                                     },
                                     {
                                         "name": "qs",
-                                        "type": "array",
-                                        "label": "Query String",
                                         "spec": [
                                             {
                                                 "name": "name",
-                                                "label": "Name",
                                                 "type": "text",
+                                                "label": "Name",
                                                 "required": true
                                             },
                                             {
                                                 "name": "value",
-                                                "label": "Value",
-                                                "type": "text"
+                                                "type": "text",
+                                                "label": "Value"
                                             }
-                                        ]
+                                        ],
+                                        "type": "array",
+                                        "label": "Query String"
                                     },
                                     {
                                         "name": "bodyType",
@@ -840,69 +841,33 @@
                 {
                     "flow": [
                         {
-                            "id": 19,
-                            "module": "util:SetVariable2",
+                            "id": 29,
+                            "module": "util:FunctionSleep",
                             "version": 1,
                             "parameters": {},
                             "filter": {
-                                "name": "이미 존재함",
-                                "conditions": [
-                                    [
-                                        {
-                                            "a": "{{12.data}}",
-                                            "b": "[]",
-                                            "o": "text:notequal"
-                                        }
-                                    ]
-                                ]
+                                "name": "이미 DB에 존재하는 기사",
+                                "conditions": []
                             },
                             "mapper": {
-                                "name": "{{response}}",
-                                "scope": "roundtrip",
-                                "value": "이미 뉴스레터가 존재함!"
+                                "duration": "1"
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 735,
-                                    "y": -860
+                                    "x": 700,
+                                    "y": -662
                                 },
-                                "restore": {
-                                    "expect": {
-                                        "scope": {
-                                            "label": "One cycle"
-                                        }
-                                    }
-                                },
+                                "restore": {},
                                 "expect": [
                                     {
-                                        "name": "name",
-                                        "type": "text",
-                                        "label": "Variable name",
-                                        "required": true
-                                    },
-                                    {
-                                        "name": "scope",
-                                        "type": "select",
-                                        "label": "Variable lifetime",
+                                        "name": "duration",
+                                        "type": "uinteger",
+                                        "label": "Delay",
                                         "required": true,
                                         "validate": {
-                                            "enum": [
-                                                "roundtrip",
-                                                "execution"
-                                            ]
+                                            "max": 300,
+                                            "min": 1
                                         }
-                                    },
-                                    {
-                                        "name": "value",
-                                        "type": "any",
-                                        "label": "Variable value"
-                                    }
-                                ],
-                                "interface": [
-                                    {
-                                        "name": null,
-                                        "type": "any",
-                                        "label": null
                                     }
                                 ]
                             }

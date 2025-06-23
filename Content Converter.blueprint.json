@@ -1,0 +1,780 @@
+{
+    "name": "Content Converter",
+    "flow": [
+        {
+            "id": 1,
+            "module": "supabase:watchEvents",
+            "version": 1,
+            "parameters": {
+                "__IMTHOOK__": 967526
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": -204,
+                    "y": -19
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTHOOK__": {
+                            "data": {
+                                "editable": "false"
+                            },
+                            "label": "new articles watcher"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTHOOK__",
+                        "type": "hook:supabase",
+                        "label": "Webhook",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 2,
+            "module": "gemini-ai:makeApiCall",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 3819965
+            },
+            "mapper": {
+                "url": "/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent",
+                "body": "{\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"다음은 기술 뉴스 요약입니다. 이를 바탕으로 지상파 9시 뉴스에서 앵커가 전달하는 것처럼 점잖고 차분한 어조로 뉴스 대본을 작성해 주세요.\\n\\n조건:\\n- 유튜브 쇼츠용이지만 톤은 차분하고 정제된 뉴스 방송 어조로 작성\\n- 자막/효과음 등은 제외하고, **오로지 대본 텍스트**만 출력\\n- 말투는 \\\"~입니다\\\", \\\"~했습니다\\\", \\\"~될 전망입니다\\\" 등 형식적인 어미 사용\\n- 문단 분리 없이 한 번에 말하듯 자연스럽게 이어서 작성. 뉴스 대본 형식이 아닌, 앵커가 그대로 읽을 수 있는 뉴스 본문만 작성해 주세요.\\n\\n 기사 제목: {{1.record.title}}\\n\\n 기사내용: {{1.record.content}}\"\n        }\n      ]\n    }\n  ]\n}",
+                "method": "POST",
+                "headers": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ]
+            },
+            "metadata": {
+                "designer": {
+                    "x": 140,
+                    "y": -19
+                },
+                "restore": {
+                    "expect": {
+                        "qs": {
+                            "mode": "chose"
+                        },
+                        "method": {
+                            "mode": "chose",
+                            "label": "POST"
+                        },
+                        "headers": {
+                            "mode": "chose",
+                            "items": [
+                                null
+                            ]
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "gemini-ai-q9zyjp"
+                            },
+                            "label": "newsletter translation"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:gemini-ai-q9zyjp",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "url",
+                        "type": "text",
+                        "label": "URL",
+                        "required": true
+                    },
+                    {
+                        "name": "method",
+                        "type": "select",
+                        "label": "Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "GET",
+                                "POST",
+                                "PUT",
+                                "PATCH",
+                                "DELETE"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "headers",
+                        "spec": [
+                            {
+                                "name": "key",
+                                "type": "text",
+                                "label": "Key"
+                            },
+                            {
+                                "name": "value",
+                                "type": "text",
+                                "label": "Value"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Headers"
+                    },
+                    {
+                        "name": "qs",
+                        "spec": [
+                            {
+                                "name": "key",
+                                "type": "text",
+                                "label": "Key"
+                            },
+                            {
+                                "name": "value",
+                                "type": "text",
+                                "label": "Value"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Query String"
+                    },
+                    {
+                        "name": "body",
+                        "type": "any",
+                        "label": "Body"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 4,
+            "module": "supabase:upsertARecord",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 3917796
+            },
+            "mapper": {
+                "id": "{{1.record.id}}",
+                "table": "newsletter",
+                "updated_at": "{{timestamp}}",
+                "news_style_content": "{{2.body.candidates[].content.parts[].text}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 440,
+                    "y": -19
+                },
+                "restore": {
+                    "expect": {
+                        "table": {
+                            "mode": "chose",
+                            "label": "newsletter",
+                            "nested": [
+                                {
+                                    "help": "Note:\nThis is a Primary Key.<pk/>",
+                                    "name": "id",
+                                    "type": "integer",
+                                    "label": "id",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "title",
+                                    "type": "text",
+                                    "label": "title",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "content",
+                                    "type": "text",
+                                    "label": "content",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "source",
+                                    "type": "text",
+                                    "label": "source",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "Defaults to now(). ",
+                                    "name": "created_at",
+                                    "type": "text",
+                                    "label": "created_at",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "subject",
+                                    "type": "text",
+                                    "label": "subject",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "Defaults to NULL. ",
+                                    "name": "news_style_content",
+                                    "type": "text",
+                                    "label": "news_style_content",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "updated_at",
+                                    "type": "integer",
+                                    "label": "updated_at",
+                                    "options": null,
+                                    "required": false
+                                }
+                            ]
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "supabase"
+                            },
+                            "label": "techpresso newsletter project"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:supabase",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "table",
+                        "type": "select",
+                        "label": "Table",
+                        "required": true
+                    },
+                    {
+                        "name": "id",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "title",
+                        "type": "text"
+                    },
+                    {
+                        "name": "content",
+                        "type": "text"
+                    },
+                    {
+                        "name": "source",
+                        "type": "text"
+                    },
+                    {
+                        "name": "created_at",
+                        "type": "text"
+                    },
+                    {
+                        "name": "subject",
+                        "type": "text"
+                    },
+                    {
+                        "name": "news_style_content",
+                        "type": "text"
+                    },
+                    {
+                        "name": "updated_at",
+                        "type": "integer"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "id",
+                        "type": "number",
+                        "label": "id"
+                    },
+                    {
+                        "name": "title",
+                        "type": "text",
+                        "label": "title"
+                    },
+                    {
+                        "name": "content",
+                        "type": "text",
+                        "label": "content"
+                    },
+                    {
+                        "name": "source",
+                        "type": "text",
+                        "label": "source"
+                    },
+                    {
+                        "name": "created_at",
+                        "type": "text",
+                        "label": "created_at"
+                    },
+                    {
+                        "name": "subject",
+                        "type": "text",
+                        "label": "subject"
+                    },
+                    {
+                        "name": "news_style_content",
+                        "type": "text",
+                        "label": "news_style_content"
+                    },
+                    {
+                        "name": "updated_at",
+                        "type": "number",
+                        "label": "updated_at"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 6,
+            "module": "google-cloud-tts:universal",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 4005599
+            },
+            "mapper": {
+                "url": "/v1/text:synthesize",
+                "body": "{\r\n  \"input\": {\r\n    \"text\": \"{{4.news_style_content}}\"\r\n  },\r\n  \"voice\": {\r\n    \"languageCode\": \"ko-KR\",\r\n    \"name\": \"ko-KR-Wavenet-C\"\r\n  },\r\n  \"audioConfig\": {\r\n    \"audioEncoding\": \"MP3\"\r\n  }\r\n}",
+                "method": "POST",
+                "headers": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ]
+            },
+            "metadata": {
+                "designer": {
+                    "x": 740,
+                    "y": -19
+                },
+                "restore": {
+                    "expect": {
+                        "qs": {
+                            "mode": "chose"
+                        },
+                        "method": {
+                            "mode": "chose",
+                            "label": "POST"
+                        },
+                        "headers": {
+                            "mode": "chose",
+                            "items": [
+                                null
+                            ]
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google-custom"
+                            },
+                            "label": "My Google Custom connection (joalvis777@gmail.com)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google-custom",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "url",
+                        "type": "text",
+                        "label": "URL",
+                        "required": true
+                    },
+                    {
+                        "name": "method",
+                        "type": "select",
+                        "label": "Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "GET",
+                                "POST",
+                                "PUT",
+                                "PATCH",
+                                "DELETE"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "headers",
+                        "spec": [
+                            {
+                                "name": "key",
+                                "type": "text",
+                                "label": "Key"
+                            },
+                            {
+                                "name": "value",
+                                "type": "text",
+                                "label": "Value"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Headers"
+                    },
+                    {
+                        "name": "qs",
+                        "spec": [
+                            {
+                                "name": "key",
+                                "type": "text",
+                                "label": "Key"
+                            },
+                            {
+                                "name": "value",
+                                "type": "text",
+                                "label": "Value"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Query String"
+                    },
+                    {
+                        "name": "body",
+                        "type": "any",
+                        "label": "Body"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 7,
+            "module": "http:ActionSendData",
+            "version": 3,
+            "parameters": {
+                "handleErrors": true,
+                "useNewZLibDeCompress": true
+            },
+            "mapper": {
+                "ca": "",
+                "qs": [],
+                "url": "https://rrhfiepdubhqumxorfjn.supabase.co/functions/v1/convertAndUploadTTS",
+                "data": "{\r\n  \"newsletterId\": \"{{4.id}}\",\r\n  \"audioContent\": \"{{6.body.audioContent}}\"\r\n}",
+                "gzip": true,
+                "method": "post",
+                "headers": [
+                    {
+                        "name": "apiKey",
+                        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyaGZpZXBkdWJocXVteG9yZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3ODEyMDQsImV4cCI6MjA2NTM1NzIwNH0.i1a-GkShedZnaRRVhKZP_Jtrjbqxyg-Kt_hN_I7oJcY"
+                    },
+                    {
+                        "name": "Authorization",
+                        "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyaGZpZXBkdWJocXVteG9yZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3ODEyMDQsImV4cCI6MjA2NTM1NzIwNH0.i1a-GkShedZnaRRVhKZP_Jtrjbqxyg-Kt_hN_I7oJcY"
+                    },
+                    {
+                        "name": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "timeout": "",
+                "useMtls": false,
+                "authPass": "",
+                "authUser": "",
+                "bodyType": "raw",
+                "contentType": "application/json",
+                "serializeUrl": false,
+                "shareCookies": false,
+                "parseResponse": false,
+                "followRedirect": true,
+                "useQuerystring": false,
+                "followAllRedirects": false,
+                "rejectUnauthorized": true
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1040,
+                    "y": -19
+                },
+                "restore": {
+                    "expect": {
+                        "qs": {
+                            "mode": "chose"
+                        },
+                        "method": {
+                            "mode": "chose",
+                            "label": "POST"
+                        },
+                        "headers": {
+                            "mode": "chose",
+                            "items": [
+                                null,
+                                null,
+                                null
+                            ]
+                        },
+                        "bodyType": {
+                            "label": "Raw"
+                        },
+                        "contentType": {
+                            "label": "JSON (application/json)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "handleErrors",
+                        "type": "boolean",
+                        "label": "Evaluate all states as errors (except for 2xx and 3xx )",
+                        "required": true
+                    },
+                    {
+                        "name": "useNewZLibDeCompress",
+                        "type": "hidden"
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "url",
+                        "type": "url",
+                        "label": "URL",
+                        "required": true
+                    },
+                    {
+                        "name": "serializeUrl",
+                        "type": "boolean",
+                        "label": "Serialize URL",
+                        "required": true
+                    },
+                    {
+                        "name": "method",
+                        "type": "select",
+                        "label": "Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "get",
+                                "head",
+                                "post",
+                                "put",
+                                "patch",
+                                "delete",
+                                "options"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "headers",
+                        "spec": [
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name",
+                                "required": true
+                            },
+                            {
+                                "name": "value",
+                                "type": "text",
+                                "label": "Value"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Headers"
+                    },
+                    {
+                        "name": "qs",
+                        "spec": [
+                            {
+                                "name": "name",
+                                "type": "text",
+                                "label": "Name",
+                                "required": true
+                            },
+                            {
+                                "name": "value",
+                                "type": "text",
+                                "label": "Value"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Query String"
+                    },
+                    {
+                        "name": "bodyType",
+                        "type": "select",
+                        "label": "Body type",
+                        "validate": {
+                            "enum": [
+                                "raw",
+                                "x_www_form_urlencoded",
+                                "multipart_form_data"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "parseResponse",
+                        "type": "boolean",
+                        "label": "Parse response",
+                        "required": true
+                    },
+                    {
+                        "name": "authUser",
+                        "type": "text",
+                        "label": "User name"
+                    },
+                    {
+                        "name": "authPass",
+                        "type": "password",
+                        "label": "Password"
+                    },
+                    {
+                        "name": "timeout",
+                        "type": "uinteger",
+                        "label": "Timeout",
+                        "validate": {
+                            "max": 300,
+                            "min": 1
+                        }
+                    },
+                    {
+                        "name": "shareCookies",
+                        "type": "boolean",
+                        "label": "Share cookies with other HTTP modules",
+                        "required": true
+                    },
+                    {
+                        "name": "ca",
+                        "type": "cert",
+                        "label": "Self-signed certificate"
+                    },
+                    {
+                        "name": "rejectUnauthorized",
+                        "type": "boolean",
+                        "label": "Reject connections that are using unverified (self-signed) certificates",
+                        "required": true
+                    },
+                    {
+                        "name": "followRedirect",
+                        "type": "boolean",
+                        "label": "Follow redirect",
+                        "required": true
+                    },
+                    {
+                        "name": "useQuerystring",
+                        "type": "boolean",
+                        "label": "Disable serialization of multiple same query string keys as arrays",
+                        "required": true
+                    },
+                    {
+                        "name": "gzip",
+                        "type": "boolean",
+                        "label": "Request compressed content",
+                        "required": true
+                    },
+                    {
+                        "name": "useMtls",
+                        "type": "boolean",
+                        "label": "Use Mutual TLS",
+                        "required": true
+                    },
+                    {
+                        "name": "contentType",
+                        "type": "select",
+                        "label": "Content type",
+                        "validate": {
+                            "enum": [
+                                "text/plain",
+                                "application/json",
+                                "application/xml",
+                                "text/xml",
+                                "text/html",
+                                "custom"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "data",
+                        "type": "buffer",
+                        "label": "Request content"
+                    },
+                    {
+                        "name": "followAllRedirects",
+                        "type": "boolean",
+                        "label": "Follow all redirect",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 8,
+            "module": "util:FunctionSleep",
+            "version": 1,
+            "parameters": {},
+            "mapper": {
+                "duration": "1"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1340,
+                    "y": -19
+                },
+                "restore": {},
+                "expect": [
+                    {
+                        "name": "duration",
+                        "type": "uinteger",
+                        "label": "Delay",
+                        "required": true,
+                        "validate": {
+                            "max": 300,
+                            "min": 1
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": true,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "us2.make.com",
+        "notes": []
+    }
+}
