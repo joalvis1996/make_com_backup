@@ -341,7 +341,7 @@
                             },
                             "mapper": {
                                 "url": "/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent",
-                                "body": "{\r\n  \"contents\": [\r\n    {\r\n      \"role\": \"user\",\r\n      \"parts\": [\r\n        {\r\n          \"text\": \"다음 영어 뉴스들을 자연스럽고 간결한 한국어로 번역한 뒤, 각 뉴스마다 반드시 JSON 배열을 string으로 반환해줘 (반드시 ```json 태그 없이 반환해줘). 번역된 내용에는 쌍따옴표는 존재하면 안돼. 모든 subject 값은 {{1.title}}로 통일해줘. 그리고 각 뉴스마다 핵심 키워드 3개를 'keywords' 항목으로 함께 포함시켜줘 (예: [\\\"AI\\\", \\\"애플\\\", \\\"시리\\\"]). 형식은 아래와 같아:\\n\\n[\\n  {\\n    \\\"subject\\\": \\\"\\\",\\n    \\\"title\\\": \\\"[한국어 번역된 제목]\\\",\\n    \\\"content\\\": \\\"[한국어로 번역된 기사 본문]\\\",\\n    \\\"keywords\\\": [\\\"키워드1\\\", \\\"키워드2\\\", \\\"키워드3\\\"]\\n  },\\n  ...\\n]\\n\\n원문은 이거야:\\n{{1.summary}}\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+                                "body": "{\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"다음 영어 뉴스들을 자연스럽고 간결한 한국어로 번역한 뒤, 각 뉴스마다 반드시 JSON 배열을 string으로 반환해줘 (반드시 ```json 태그 없이 반환해줘). 번역된 내용에는 쌍따옴표는 존재하면 안돼. 모든 subject 값은 {{1.title}}로 통일해줘.  각 뉴스의 원문 전체 텍스트는 'rawContent' 항목에 담아줘. 각 기사마다 키워드를 영어 단어로 여러개 뽑아줘. 형식은 아래와 같아:\\n\\n[\\n  {\\n    \\\"subject\\\": \\\"\\\",\\n    \\\"title\\\": \\\"[한국어 번역된 제목]\\\",\\n    \\\"rawContent\\\": \\\"[기사 원문(영어)]\\\",\\n    \\\"content\\\": \\\"[한국어로 번역된 기사 본문]\\\",\\n    \\\"keywords\\\": \\\"키워드1\\,\\\"키워드2\\\" ... \\n  },\\n  ...\\n]\\n\\n원문은 이거야:\\n{{1.summary}}\"\n        }\n      ]\n    }\n  ]\n}",
                                 "method": "POST",
                                 "headers": [
                                     {
@@ -454,6 +454,85 @@
                             }
                         },
                         {
+                            "id": 30,
+                            "module": "regexp:Replace",
+                            "version": 1,
+                            "parameters": {},
+                            "mapper": {
+                                "text": "",
+                                "value": "  ",
+                                "global": false,
+                                "pattern": "^```|```$|\\n",
+                                "multiline": false,
+                                "sensitive": true,
+                                "singleline": false
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 547,
+                                    "y": -1400
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "global": {
+                                            "mode": "chose"
+                                        },
+                                        "multiline": {
+                                            "mode": "chose"
+                                        },
+                                        "sensitive": {
+                                            "mode": "chose"
+                                        },
+                                        "singleline": {
+                                            "mode": "chose"
+                                        }
+                                    }
+                                },
+                                "expect": [
+                                    {
+                                        "name": "pattern",
+                                        "type": "text",
+                                        "label": "Pattern",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "value",
+                                        "type": "text",
+                                        "label": "New value"
+                                    },
+                                    {
+                                        "name": "global",
+                                        "type": "boolean",
+                                        "label": "Global match",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "sensitive",
+                                        "type": "boolean",
+                                        "label": "Case sensitive",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "multiline",
+                                        "type": "boolean",
+                                        "label": "Multiline",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "singleline",
+                                        "type": "boolean",
+                                        "label": "Singleline",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "text",
+                                        "type": "text",
+                                        "label": "Text"
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             "id": 24,
                             "module": "json:ParseJSON",
                             "version": 1,
@@ -495,9 +574,7 @@
                                         "help": "",
                                         "name": "test response",
                                         "spec": {
-                                            "name": "value",
                                             "type": "text",
-                                            "label": "Value",
                                             "default": "example",
                                             "required": false,
                                             "multiline": false
@@ -520,7 +597,8 @@
                                 "title": "{{24.title}}",
                                 "content": "{{24.content}}",
                                 "subject": "{{24.subject}}",
-                                "keywords": "{{24.keywords}}"
+                                "keywords": "{{24.keywords}}",
+                                "rawContent": "{{24.rawContent}}"
                             },
                             "metadata": {
                                 "designer": {
@@ -585,7 +663,7 @@
                                 "ca": "",
                                 "qs": [],
                                 "url": "https://rrhfiepdubhqumxorfjn.supabase.co/rest/v1/newsletter",
-                                "data": "{\n  \"subject\": \"{{28.subject}}\",\n  \"title\": \"{{28.title}}\",\n  \"content\": \"{{28.content}}\",\n  \"created_at\": {{timestamp}}\n}",
+                                "data": "{\n  \"subject\": \"{{28.subject}}\",\n  \"title\": \"{{28.title}}\",\n  \"content\": \"{{28.content}}\",\n  \"raw_content\": \"{{28.rawContent}}\",\n  \"keywords\":\"{{28.keywords}}\",\n  \"created_at\": {{timestamp}}\n}",
                                 "gzip": true,
                                 "method": "post",
                                 "headers": [
