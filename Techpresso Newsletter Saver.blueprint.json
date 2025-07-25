@@ -469,8 +469,8 @@
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 547,
-                                    "y": -1400
+                                    "x": 511,
+                                    "y": -1458
                                 },
                                 "restore": {
                                     "expect": {
@@ -533,6 +533,62 @@
                             }
                         },
                         {
+                            "id": 31,
+                            "module": "util:SetVariable2",
+                            "version": 1,
+                            "parameters": {},
+                            "mapper": {
+                                "name": "articles",
+                                "scope": "roundtrip",
+                                "value": "{{2.body.candidates[].content.parts[].text}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 891,
+                                    "y": -1476
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "scope": {
+                                            "label": "One cycle"
+                                        }
+                                    }
+                                },
+                                "expect": [
+                                    {
+                                        "name": "name",
+                                        "type": "text",
+                                        "label": "Variable name",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "scope",
+                                        "type": "select",
+                                        "label": "Variable lifetime",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "roundtrip",
+                                                "execution"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "value",
+                                        "type": "any",
+                                        "label": "Variable value"
+                                    }
+                                ],
+                                "interface": [
+                                    {
+                                        "name": "articles",
+                                        "type": "any",
+                                        "label": "articles"
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             "id": 24,
                             "module": "json:ParseJSON",
                             "version": 1,
@@ -540,11 +596,11 @@
                                 "type": 127573
                             },
                             "mapper": {
-                                "json": "{{2.body.candidates[].content.parts[].text}}"
+                                "json": "{{31.articles}}"
                             },
                             "metadata": {
                                 "designer": {
-                                    "x": 701,
+                                    "x": 736,
                                     "y": -1105
                                 },
                                 "restore": {
